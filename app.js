@@ -93,5 +93,4 @@ app.ws('/', (ws, req) => {
   ws.send(Message.toString(new Message('welcome', null)));
 });
 
-//app.listen(8080, () => console.log('Example app listening on port 8080!'))
-app.listen();
+app.listen(80, () => console.log('Example app listening on port 8080!'))
