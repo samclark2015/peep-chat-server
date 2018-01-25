@@ -1,13 +1,45 @@
 var express = require('express');
 var app = express();
 var expressWs = require('express-ws')(app);
+var jwt = require('jsonwebtoken');
+var _ = require('lodash');
+var bodyParser = require('body-parser')
+
+var passport = require('passport');
+var passportJWT = require("passport-jwt");
+var ExtractJwt = passportJWT.ExtractJwt;
+var JwtStrategy = passportJWT.Strategy;
+let shared = require('./shared.js');
+const secret = shared.secret;
+
+// Routers
+var sockets = require('./sockets.js');
+var secure = require('./secure.js')(passport);
 
 //classes
 const Message = require('./classes/Message.js');
 const User = require('./classes/User.js');
 const Error = require('./classes/Error.js');
 
-var activeUsers = [];
+var users = shared.users;
+var activeUsers = shared.activeUsers;
+
+var jwtOptions = {}
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+jwtOptions.secretOrKey = secret;
+
+var strategy = new JwtStrategy(jwtOptions, function(jwt_payload, next) {
+  console.log('payload received', jwt_payload);
+  // usually this would be a database call:
+  var user = _.find(users, {id: jwt_payload.id })
+  if (user) {
+    next(null, user);
+  } else {
+    next(null, false);
+  }
+});
+
+passport.use(strategy);
 
 app.use(function(req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -15,82 +47,32 @@ app.use(function(req, res, next) {
   next();
 });
 
-// respond with "hello world" when a GET request is made to the homepage
-app.get('/users', function (req, res) {
-  res.send(activeUsers.map((user) => {
-    var u = Object.assign({}, user);
-    delete u.socket;
-    return u;
-  }));
-});
+app.use(bodyParser.json());       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+}));
 
-app.ws('/', (ws, req) => {
-  var isAuth = false;
-  var user = null;
+app.use(passport.initialize());
+app.use('/ws', sockets);
+app.use('/secure', secure)
 
-  function signOn(data) {
-    if(isAuth) {
-      let idx = activeUsers.indexOf(user);
-      activeUsers.splice(idx, 1);
-    }
-
-    user = new User(data.name, ws);
-    isAuth = true;
-    activeUsers.push(user);
-    var cleanUser = Object.assign({}, user);
-    delete cleanUser.socket;
-    let message = new Message('signon', cleanUser);
-    ws.send(Message.toString(message));
-    console.log(req);
+app.post('/login', (req, res) => {
+  //TODO auth & send jwt
+  let {username, password} = req.body;
+  let user = _.find(users, {username: username});
+  if( ! user ){
+    res.status(401).json({message:"no such user found"});
   }
 
-  function sendMessage(isTyping, data) {
-    if(!isAuth) {
-      ws.send(Message.toString(new Error("Unauthorized user")));
-      return;
-    }
-
-    let message = Message.toString(new Message(isTyping ? 'typing' : 'message', data));
-
-    for(var user of activeUsers) {
-      if(user.name === data.to) {
-        user.socket.send(message);
-        if(!isTyping)
-          ws.send(message);
-        return;
-      }
-    }
-    ws.send(Message.toString(new Error("User not found")));
+  if(user.password === req.body.password) {
+    // from now on we'll identify the user by the id and the id is the only personalized value that goes into our token
+    var payload = {id: user.id};
+    var token = jwt.sign(payload, jwtOptions.secretOrKey);
+    res.json({message: "ok", token: token});
+  } else {
+    res.status(401).json({message:"passwords did not match"});
   }
-
-  ws.on('message', (message) => {
-    let data = JSON.parse(message);
-    switch(data.type) {
-      case 'signon':
-        signOn(data.payload);
-        break;
-      case 'typing':
-        sendMessage(true, data.payload);
-        break;
-      case 'message':
-        sendMessage(false, data.payload);
-        break;
-      default:
-        ws.send(Message.toString(new Error("Unknown message type")));
-        break;
-    }
-  });
-
-  ws.on('close', () => {
-    if(isAuth) {
-      let idx = activeUsers.indexOf(user);
-      activeUsers.splice(idx, 1);
-    }
-  });
-
-  ws.on('error', () => console.log('error'));
-
-  ws.send(Message.toString(new Message('welcome', null)));
 });
 
-app.listen(80, () => console.log('Example app listening on port 8080!'))
+
+app.listen(8080, () => console.log('Example app listening on port 8080!'))
