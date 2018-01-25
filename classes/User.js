@@ -1,6 +1,7 @@
-module.exports = class User {
-  constructor(name, ws) {
-    this.name = name;
-    this.socket = ws;
-  }
-}
+module.exports = class {
+	constructor(id, username, password) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
+	}
+};
