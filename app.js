@@ -1,9 +1,9 @@
 var express = require('express');
 var app = express();
-var expressWs = require('express-ws')(app);
 var jwt = require('jsonwebtoken');
 var _ = require('lodash');
 var bodyParser = require('body-parser');
+require('express-ws')(app); //express-ws
 
 var passport = require('passport');
 var passportJWT = require('passport-jwt');
