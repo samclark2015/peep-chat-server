@@ -39,9 +39,6 @@ const strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
 
 passport.use(strategy);
 
-console.log(process.env.PORT);
-app.set('port', process.env.PORT || 3000);
-
 app.use(function(req, res, next) {
 	res.header('Access-Control-Allow-Origin', '*');
 	res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -90,4 +87,6 @@ app.post('/api/login', (req, res) => {
 app.use(express.static('client'));
 
 
-app.listen();
+let listener = app.listen(process.env.PORT || 3000, () => {
+	console.log('App listening on port ' + listener.address().port);
+});
