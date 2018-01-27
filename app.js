@@ -39,6 +39,7 @@ const strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
 
 passport.use(strategy);
 
+console.log(process.env.PORT);
 app.set('port', process.env.PORT || 3000);
 
 app.use(function(req, res, next) {
