@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const Message = require('./Message.js');
 
 const schema = new Schema({
-	members: ['ObjectId'],
+	members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 	messages: [Message.schema]
 });
 

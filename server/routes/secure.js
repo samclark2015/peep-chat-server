@@ -11,15 +11,21 @@ module.exports = (passport) => {
 	router.use(passport.authenticate('jwt', { session: false }));
 
 	router.get('/threads', (req, res) => {
-		Thread.find({members: req.user._id}).select(['members']).exec((err, data) => {
-			res.send(data);
-		});
+		Thread.find({members: req.user._id})
+			.select(['members'])
+			.populate('members')
+			.exec((err, data) => {
+				res.send(data);
+			});
 	});
 
 	router.get('/threads/:id', (req, res) => {
-		Thread.findOne({_id: req.params.id, members: req.user._id}, (err, data) => {
-			res.send(data);
-		});
+		Thread.findOne({_id: req.params.id, members: req.user._id})
+			.populate('members')
+			.populate('messages.sender')
+			.exec((err, data) => {
+				res.send(data);
+			});
 	});
 
 	router.post('/threads', (req, res) => {
@@ -47,7 +53,7 @@ module.exports = (passport) => {
 		//send array of all users
 		User.find({}, (err, data) => {
 			if(err) {
-				res.sendStatus(500).send(err);
+				res.send(err);
 			}
 			res.send(data);
 		});
@@ -56,7 +62,8 @@ module.exports = (passport) => {
 	router.get('/users/me', (req, res) => {
 		User.findOne({_id: req.user._id}, (err, data) => {
 			if(err) {
-				res.sendStatus(500).send(err);
+				res.send(err);
+				return;
 			}
 			res.send(data);
 		});
@@ -66,7 +73,8 @@ module.exports = (passport) => {
 		//send array of all users
 		User.findOne({_id: req.params.id}, (err, data) => {
 			if(err) {
-				res.sendStatus(500).send(err);
+				res.send(err);
+				return;
 			}
 			res.send(data);
 		});
