@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var mongoose = require('mongoose');
 var _ = require('lodash');
 const User = require('../models/User.js');
 const Thread = require('../models/Thread.js');
@@ -35,16 +36,25 @@ module.exports = (passport) => {
 		);
 
 		//members.push(req.user._id);
-		usernames = _.uniq(usernames);
+		//usernames = _.uniq(usernames);
 		User.find({username: {$in: usernames}}, function (err, data){
-			var ids = data.map((o) => o._id);
-			ids.push(req.user._id);
+			var ids = data.map((o) => o._id.toString());
+			let me = req.user._id.toString();
+			ids.push(me);
 			ids = _.uniq(ids);
-			let thread = new Thread({members: ids, messages: []});
-			thread.save((err, obj) => {
-				if(err)
-					throw err;
-				res.send(obj);
+
+			Thread.findOne({members: ids}, (err, data) => {
+				console.log(data);
+				if(!data) {
+					let thread = new Thread({members: ids, messages: []});
+					thread.save((err, obj) => {
+						if(err)
+							throw err;
+						res.send(obj);
+					});
+				} else {
+					res.send(data);
+				}
 			});
 		});
 	});
