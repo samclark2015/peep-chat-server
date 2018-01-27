@@ -16,9 +16,11 @@
     "express-ws": "^3.0.0",
     "jsonwebtoken": "^8.1.1",
     "lodash": "^4.17.4",
+    "mongoose": "^5.0.1",
     "passport": "^0.4.0",
     "passport-jwt": "^3.0.1",
     "passport-local": "^1.0.0",
+    "password-hash-and-salt": "^0.1.4",
     "ws": "^4.0.0"
   },
   "devDependencies": {

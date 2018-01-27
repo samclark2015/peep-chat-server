@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 const bodyParser = require('body-parser');
 require('express-ws')(app); //express-ws
 
@@ -10,15 +11,20 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 const passwordHash = require('password-hash-and-salt');
 
-let shared = require('./server/shared.js');
+let shared = require('./shared.js');
 const secret = shared.secret;
 
 // Routers
-const sockets = require('./server/routes/sockets.js');
-const secure = require('./server/routes/secure.js')(passport);
+const sockets = require('./routes/sockets.js');
+const secure = require('./routes/secure.js')(passport);
 
-// Models
-const User = require('./server/models/User.js');
+//classes
+//const Message = require('./classes/Message.js');
+//const User = require('./classes/User.js');
+//const Error = require('./classes/Error.js');
+
+const User = require('./models/User.js');
+//var activeUsers = shared.activeUsers;
 
 const jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -56,10 +62,10 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 }));
 
 app.use(passport.initialize());
-app.use('/api/ws', sockets);
-app.use('/api/secure', secure);
+app.use('/ws', sockets);
+app.use('/secure', secure);
 
-app.post('/api/login', (req, res) => {
+app.post('/login', (req, res) => {
 	//TODO auth & send jwt
 	let {username, password} = req.body;
 	User.findOne({username: username}, 'username password', (err, data) => {
@@ -81,10 +87,11 @@ app.post('/api/login', (req, res) => {
 				res.json({message: 'ok', token: token});
 			}
 		});
+
+
 	});
+
 });
 
-app.use(express.static('client'));
 
-
-app.listen(8080, () => console.log('Listening on port 8080!'));
+app.listen(8080, () => console.log('Example app listening on port 8080!'));
