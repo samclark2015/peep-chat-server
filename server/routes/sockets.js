@@ -83,8 +83,10 @@ router.ws('/', (ws, req) => {
 					thread.save(() => {
 						Message.populate(message, 'sender', (err, savedMessage) => {
 							let wsMessage = new WSMessage('message', savedMessage);
-							console.log(wsMessage);
 							thread.members.forEach((member) => {
+								let pushTest = message.sender.name + ': "'+message.content+'"';
+								shared.triggerPushMsg(member, pushTest);
+
 								if(activeUsers[member]) {
 									activeUsers[member].forEach((sock) => {
 										sock.send(WSMessage.toString(wsMessage));

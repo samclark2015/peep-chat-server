@@ -4,12 +4,47 @@ var mongoose = require('mongoose');
 var _ = require('lodash');
 const User = require('../models/User.js');
 const Thread = require('../models/Thread.js');
+const webpush = require('web-push');
 
 let shared = require('../shared.js');
 var activeUsers = shared.activeUsers;
+var subscriptions = shared.subscriptions;
+
+webpush.setVapidDetails(
+	'mailto:slc2015@icloud.com',
+	shared.vapidKeys.publicKey,
+	shared.vapidKeys.privateKey
+);
+
+shared.webpush = webpush;
+
+shared.triggerPushMsg = function(userId, dataToSend) {
+	let sub = subscriptions[userId];
+	if(!sub) {
+		return new Promise((res, rej) => rej('no push found'));
+	}
+	return webpush.sendNotification(sub, dataToSend)
+		.catch((err) => {
+			console.warn(err);
+			if (err.statusCode === 410) {
+				delete subscriptions[userId];
+				return;
+			} else {
+				console.log('Subscription is no longer valid: ', err);
+			}
+		});
+};
 
 module.exports = (passport) => {
 	router.use(passport.authenticate('jwt', { session: false }));
+
+	/*router.post('/trigger-push-msg/', (req, res) => {
+		Object.keys(subscriptions).forEach((user) => {
+			shared.triggerPushMsg(user, 'heybaybbeee');
+		});
+		res.setHeader('Content-Type', 'application/json');
+		res.send(JSON.stringify({ data: { success: true } }));
+	});*/
 
 	router.get('/threads', (req, res) => {
 		Thread.find({members: req.user._id})
@@ -44,7 +79,6 @@ module.exports = (passport) => {
 			ids = _.uniq(ids);
 
 			Thread.findOne({members: ids}, (err, data) => {
-				console.log(data);
 				if(!data) {
 					let thread = new Thread({members: ids, messages: []});
 					thread.save((err, obj) => {
@@ -97,6 +131,12 @@ module.exports = (passport) => {
 			delete u.socket;
 			return u;
 		}));
+	});
+
+	router.post('/subscribe', (req, res) => {
+		subscriptions[req.user._id] = req.body;
+		res.setHeader('Content-Type', 'application/json');
+		res.send(JSON.stringify({ data: { success: true } }));
 	});
 
 	return router;
