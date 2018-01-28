@@ -10,7 +10,7 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 const passwordHash = require('password-hash-and-salt');
 
-let SharedData = require('app/components/SharedData');
+let SharedData = require('components/SharedData');
 SharedData.passport = passport;
 
 // Routers
