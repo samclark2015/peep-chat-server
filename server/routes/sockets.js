@@ -85,7 +85,7 @@ router.ws('/', (ws, req) => {
 							let wsMessage = new WSMessage('message', savedMessage);
 							let pushTest = message.sender.name + ': "'+message.content+'"';
 							thread.members.forEach((member) => {
-								if(!(user._id == member))
+								if(!member.equals(message.sender._id))
 									shared.triggerPushMsg(member, pushTest);
 
 								if(activeUsers[member]) {
