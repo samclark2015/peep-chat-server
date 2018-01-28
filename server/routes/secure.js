@@ -93,6 +93,20 @@ module.exports = (passport) => {
 		});
 	});
 
+	router.delete('/threads/:id', (req, res) => {
+		Thread.remove({ _id: req.params.id, members: req.user._id }, (err, data) => {
+			if (err) {
+				res.send(err);
+				return;
+			}
+			if(!data) {
+				res.sendStatus(404);
+				return;
+			}
+			res.sendStatus(200);
+		});
+	});
+
 	router.get('/users/', (req, res) => {
 		//send array of all users
 		User.find({}, (err, data) => {
