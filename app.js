@@ -10,19 +10,19 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 const passwordHash = require('password-hash-and-salt');
 
-let shared = require('./server/shared.js');
-const secret = shared.secret;
+let SharedData = require('app/components/SharedData');
+SharedData.passport = passport;
 
 // Routers
-const sockets = require('./server/routes/sockets.js');
-const secure = require('./server/routes/secure.js')(passport);
+const sockets = require('app/routes/Sockets');
+const secure = require('app/routes/Secure');
 
 // Models
-const User = require('./server/models/User.js');
+const User = require('app/models/User.js');
 
 const jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
-jwtOptions.secretOrKey = secret;
+jwtOptions.secretOrKey = SharedData.secret;
 
 const strategy = new JwtStrategy(jwtOptions, function (jwt_payload, next) {
 	// usually this would be a database call:
@@ -84,8 +84,6 @@ app.post('/api/login', (req, res) => {
 		});
 	});
 });
-
-app.use(express.static('client'));
 
 
 let listener = app.listen(process.env.PORT || 3000, () => {
