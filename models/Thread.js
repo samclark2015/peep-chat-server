@@ -1,5 +1,5 @@
-const SharedData = require('app/components/SharedData');
-const Message = require('app/models/Message');
+const SharedData = require('components/SharedData');
+const Message = require('models/Message');
 const Schema = SharedData.mongoose.Schema;
 
 const schema = new Schema({

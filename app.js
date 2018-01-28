@@ -14,11 +14,11 @@ let SharedData = require('components/SharedData');
 SharedData.passport = passport;
 
 // Routers
-const sockets = require('app/routes/Sockets');
-const secure = require('app/routes/Secure');
+const sockets = require('routes/Sockets');
+const secure = require('routes/Secure');
 
 // Models
-const User = require('app/models/User.js');
+const User = require('models/User.js');
 
 const jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();

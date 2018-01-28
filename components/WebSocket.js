@@ -1,4 +1,4 @@
-const SharedData = require('app/components/SharedData');
+const SharedData = require('components/SharedData');
 
 let sendNotification = (userId, message) => {
 	SharedData.activeUsers[userId].forEach((sock) => {

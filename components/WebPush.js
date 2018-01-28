@@ -1,5 +1,5 @@
 const webpush = require('web-push');
-const SharedData = require('app/components/SharedData');
+const SharedData = require('components/SharedData');
 
 let vapidKeys = {
 	publicKey:

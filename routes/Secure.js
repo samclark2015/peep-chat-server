@@ -1,11 +1,11 @@
 var express = require('express');
 var router = express.Router();
 var _ = require('lodash');
-const User = require('app/models/User');
-const Thread = require('app/models/Thread');
-const WebPush = require('app/components/WebPush');
+const User = require('models/User');
+const Thread = require('models/Thread');
+const WebPush = require('components/WebPush');
 
-let shared = require('app/components/SharedData');
+let shared = require('components/SharedData');
 var activeUsers = shared.activeUsers;
 
 module.exports = () => {

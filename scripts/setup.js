@@ -1,5 +1,5 @@
 //const mongoose = require('./shared.js').mongoose;
-const User = require('app/models/User.js');
+const User = require('models/User.js');
 const passwordHash = require('password-hash-and-salt');
 
 var args = process.argv.slice(2);
