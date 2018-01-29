@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const webpush = require('web-push');
 const SharedData = require('components/SharedData');
 
@@ -16,20 +17,19 @@ webpush.setVapidDetails(
 
 let sendNotification = (userId, message) => {
 	let sub = SharedData.subscriptions[userId];
-	if(!sub) {
-		return new Promise((res, rej) => rej('no push found'));
+	if(sub) {
+		webpush.sendNotification(sub, message)
+			.catch((err) => {
+				console.warn(err);
+				if (err.statusCode === 410) {
+					_.pull(SharedData.subscriptions[userId], sub);
+					if(SharedData.subscriptions[userId].length == 0)
+						delete SharedData.subscriptions[userId];
+				} else {
+					console.log('Subscription is no longer valid: ', err);
+				}
+			});
 	}
-
-	return webpush.sendNotification(sub, message)
-		.catch((err) => {
-			console.warn(err);
-			if (err.statusCode === 410) {
-				delete SharedData.subscriptions[userId];
-				return;
-			} else {
-				console.log('Subscription is no longer valid: ', err);
-			}
-		});
 };
 
 module.exports = {

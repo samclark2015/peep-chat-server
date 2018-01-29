@@ -5,6 +5,6 @@ const Schema = SharedData.mongoose.Schema;
 const schema = new Schema({
 	members: [{ type: Schema.Types.ObjectId, ref: 'User' }],
 	messages: [Message.schema]
-});
+}, {timestamps: true});
 
 module.exports = SharedData.mongoose.model('Thread', schema);
