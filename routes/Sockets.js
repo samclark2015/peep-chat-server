@@ -69,7 +69,7 @@ router.ws('/', (ws, req) => {
 					User.findOne({_id: data.sender}, (err, user) => {
 						wsMessage.payload.sender = user; //throw user data into response object
 						let text = WSMessage.toString(wsMessage); //convert response object to JSON string
-						let users = _.filter(thread.members, (member) => !member.equals(data.sender));
+						let users = _.filter(thread.members, (member) => !user._id.equals(member));
 						Notify.notifyUsers(users, text, ['websocket']);
 					});
 				} else {
@@ -79,7 +79,7 @@ router.ws('/', (ws, req) => {
 						Message.populate(message, 'sender', (err, savedMessage) => {
 							let wsMessage = new WSMessage('message', savedMessage);
 							let text = WSMessage.toString(wsMessage);
-							let webpushUsers = _.filter(thread.members, (member) => !member.equals(data.sender));
+							let webpushUsers = _.filter(thread.members, (member) => !message.sender._id.equals(member));
 							Notify.notifyUsers(thread.members, text, ['websocket']);
 							Notify.notifyUsers(webpushUsers, text, ['webpush']);
 						});
@@ -126,3 +126,5 @@ router.ws('/', (ws, req) => {
 });
 
 module.exports = router;
+
+console.log('Sockets router mounted');

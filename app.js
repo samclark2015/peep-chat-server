@@ -10,15 +10,12 @@ const ExtractJwt = passportJWT.ExtractJwt;
 const JwtStrategy = passportJWT.Strategy;
 const passwordHash = require('password-hash-and-salt');
 
-let SharedData = require('components/SharedData');
-SharedData.passport = passport;
-
-// Routers
-const sockets = require('routes/Sockets');
-const secure = require('routes/Secure');
-
 // Models
 const User = require('models/User.js');
+
+// Passport Setup
+let SharedData = require('components/SharedData');
+SharedData.passport = passport;
 
 const jwtOptions = {};
 jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
@@ -57,6 +54,12 @@ app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
 }));
 
 app.use(passport.initialize());
+
+console.log('Middleware initialized');
+
+// Routes
+const sockets = require('routes/Sockets');
+const secure = require('routes/Secure');
 app.use('/api/ws', sockets);
 app.use('/api/secure', secure);
 
