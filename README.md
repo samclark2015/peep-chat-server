@@ -1,5 +1,6 @@
 # Peep Server
 The backend client for Peep, the not-so-secret messaging service.
+Running on Node.js using the Express framework, this backend communicates with clients through a REST API for time-insensitive requests, and through WebSockets & WebPush for real-time messaging and notifications.
 
 ### Models:
 $ prefix denotes a server-set value; should not be sent in POST requests.
@@ -26,8 +27,9 @@ Message:
 Subscription:
 	$ _id: ObjectId,
 	userId: ObjectId -> User,
-	type: String,
-	data: Object
+	type: ['webpush'],
+	data: Object   // subscription data obtained from WebPush framework
+
 
 WSMessage:
 	type: ['signon', 'typing', 'message'],
