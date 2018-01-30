@@ -1,2 +1,5 @@
 # Peep Server
-The backend client for Peep, the not-so-secret messaging service. 
+The backend client for Peep, the not-so-secret messaging service.
+
+## REST API:
+###- /login
