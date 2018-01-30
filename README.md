@@ -1,6 +1,9 @@
 # Peep Server
 The backend client for Peep, the not-so-secret messaging service.
 Running on Node.js using the Express framework, this backend communicates with clients through a REST API for time-insensitive requests, and through WebSockets & WebPush for real-time messaging and notifications.
+- [Models](#models)
+- [REST Endpoints](#rest-endpoints)
+- [WebSocket API](#websocket-api)
 
 ### Models:
 $ prefix denotes a server-set value; should not be sent in POST requests.
@@ -36,7 +39,7 @@ WSMessage:
 	payload: Object
 ```
 
-### REST API:
+### REST Endpoints:
 ```
 POST /api/login
 	Request Body:
