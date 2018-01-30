@@ -3,6 +3,7 @@ var router = express.Router();
 var _ = require('lodash');
 const User = require('models/User');
 const Thread = require('models/Thread');
+const Subscription = require('models/Subscription');
 
 let SharedData = require('components/SharedData');
 var activeUsers = SharedData.activeUsers;
@@ -108,9 +109,37 @@ router.get('/users/active', (req, res) => {
 });
 
 router.post('/subscribe', (req, res) => {
-	SharedData.subscriptions[req.user._id] = req.body;
-	res.setHeader('Content-Type', 'application/json');
-	res.send(JSON.stringify({ data: { success: true } }));
+	let data = {
+		userId: req.user._id,
+		type: req.body.type,
+		data: req.body.data
+	};
+
+	Subscription.find(data, (err, existing) => {
+		if(existing.length == 0) {
+			let subscription = new Subscription(data);
+			subscription.save((err, data) => {
+				if(err) {
+					res.send(err);
+					return;
+				}
+				let response = {
+					success: true,
+					payload: data
+				};
+				res.setHeader('Content-Type', 'application/json');
+				res.send(JSON.stringify(response));
+			});
+		} else {
+			let response = {
+				success: true,
+				payload: existing
+			};
+			res.setHeader('Content-Type', 'application/json');
+			res.send(JSON.stringify(response));
+		}
+	});
+
 });
 
 module.exports = router;

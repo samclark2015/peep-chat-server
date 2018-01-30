@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const webpush = require('web-push');
 const SharedData = require('components/SharedData');
+const Subscription = require('models/Subscription');
 
 let vapidKeys = {
 	publicKey:
@@ -16,20 +17,26 @@ webpush.setVapidDetails(
 );
 
 let sendNotification = (userId, message) => {
-	let sub = SharedData.subscriptions[userId];
-	if(sub) {
-		webpush.sendNotification(sub, message)
-			.catch((err) => {
-				console.warn(err);
-				if (err.statusCode === 410) {
-					_.pull(SharedData.subscriptions[userId], sub);
-					if(SharedData.subscriptions[userId].length == 0)
-						delete SharedData.subscriptions[userId];
-				} else {
-					console.log('Subscription is no longer valid: ', err);
-				}
+	Subscription.find({userId: userId, type: 'webpush'}, (err, subs) => {
+		if(err) {
+			console.warn(err);
+			return;
+		}
+		if(subs) {
+			subs.forEach((sub) => {
+				webpush.sendNotification(sub.data, message)
+					.catch((err) => {
+						console.warn(err);
+						if (err.statusCode === 410) {
+							Subscription.remove({_id: sub._id});
+						} else {
+							console.log('Subscription is no longer valid: ', err);
+						}
+					});
 			});
-	}
+		}
+
+	});
 };
 
 module.exports = {
