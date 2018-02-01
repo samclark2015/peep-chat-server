@@ -74,16 +74,23 @@ router.ws('/', (ws, req) => {
 					});
 				} else {
 					let message = new Message(data);
-					thread.messages.push(message);
-					thread.save(() => {
-						Message.populate(message, 'sender', (err, savedMessage) => {
-							let wsMessage = new WSMessage('message', savedMessage);
-							let text = WSMessage.toString(wsMessage);
-							let webpushUsers = _.filter(thread.members, (member) => !message.sender._id.equals(member));
-							Notify.notifyUsers(thread.members, text, ['websocket']);
-							Notify.notifyUsers(webpushUsers, text, ['webpush']);
+					Thread.update({_id: thread._id}, {
+						$push: {
+							messages: {
+								$each: [message],
+								$sort: { timestamp: -1 }
+							}
+						}
+					})
+						.then(() => {
+							Message.populate(message, 'sender', (err, savedMessage) => {
+								let wsMessage = new WSMessage('message', savedMessage);
+								let text = WSMessage.toString(wsMessage);
+								let webpushUsers = _.filter(thread.members, (member) => !message.sender._id.equals(member));
+								Notify.notifyUsers(thread.members, text, ['websocket']);
+								Notify.notifyUsers(webpushUsers, text, ['webpush']);
+							});
 						});
-					});
 				}
 			} else {
 				let message = new WSError('Thread not found');
