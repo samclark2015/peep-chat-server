@@ -11,8 +11,11 @@ var activeUsers = SharedData.activeUsers;
 router.use(SharedData.passport.authenticate('jwt', { session: false }));
 router.get('/threads', (req, res) => {
 	Thread.find({members: req.user._id})
-		.select(['members'])
+		//.select(['members', 'createdAt', 'updatedAt'])
 		.populate('members')
+		.slice('messages', 1)
+		.populate('messages')
+		.sort({'updatedAt': -1})
 		.exec((err, data) => {
 			res.send(data);
 		});
@@ -43,8 +46,10 @@ router.post('/threads', (req, res) => {
 			if(!data) {
 				let thread = new Thread({members: ids, messages: []});
 				thread.save((err, obj) => {
-					if(err)
-						throw err;
+					if(err){
+						res.send(err);
+						return;
+					}
 					res.send(obj);
 				});
 			} else {
@@ -55,17 +60,34 @@ router.post('/threads', (req, res) => {
 });
 
 router.delete('/threads/:id', (req, res) => {
-	Thread.remove({ _id: req.params.id, members: req.user._id }, (err, data) => {
+	/*Thread.remove({ _id: req.params.id, members: req.user._id }, (err, data) => {
 		if (err) {
 			res.send(err);
 			return;
 		}
+
 		if(!data) {
 			res.sendStatus(404);
 			return;
 		}
 		res.sendStatus(200);
-	});
+	});*/
+	Thread.update(
+		{ _id: req.params.id, members: req.user._id },
+		{
+			$pull: {members: req.user._id},
+			$push: {inactiveMembers: req.user._id}
+		}
+	)
+		.then((doc) =>{
+			if(!doc)
+				res.sendStatus(404);
+			else {
+				res.sendStatus(200);
+			}
+		})
+		.catch((err) => res.send(err));
+
 });
 
 router.get('/users/', (req, res) => {

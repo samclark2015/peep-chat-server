@@ -1,3 +1,5 @@
+require('dotenv').config();
+require('module').Module._initPaths();
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');

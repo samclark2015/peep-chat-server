@@ -17,26 +17,22 @@ webpush.setVapidDetails(
 );
 
 let sendNotification = (userId, message) => {
-	Subscription.find({userId: userId, type: 'webpush'}, (err, subs) => {
-		if(err) {
+	Subscription.find({userId: userId, type: 'webpush'})
+		.then((docs) => {
+			if(docs) {
+				docs.forEach((doc) => {
+					webpush.sendNotification(doc.data, message)
+						.catch((err) => {
+							if (err.statusCode === 410) {
+								Subscription.remove({_id: doc._id});
+							}
+						});
+				});
+			}
+		})
+		.catch((err) => {
 			console.warn(err);
-			return;
-		}
-		if(subs) {
-			subs.forEach((sub) => {
-				webpush.sendNotification(sub.data, message)
-					.catch((err) => {
-						console.warn(err);
-						if (err.statusCode === 410) {
-							Subscription.remove({_id: sub._id});
-						} else {
-							console.log('Subscription is no longer valid: ', err);
-						}
-					});
-			});
-		}
-
-	});
+		});
 };
 
 module.exports = {
