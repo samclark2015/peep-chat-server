@@ -13,8 +13,7 @@ router.get('/threads', (req, res) => {
 	Thread.find({members: req.user._id})
 		//.select(['members', 'createdAt', 'updatedAt'])
 		.populate('members')
-		.slice('messages', 1)
-		.populate('messages')
+		.populate('messages.sender')
 		.sort({'updatedAt': -1})
 		.exec((err, data) => {
 			res.send(data);
@@ -60,18 +59,6 @@ router.post('/threads', (req, res) => {
 });
 
 router.delete('/threads/:id', (req, res) => {
-	/*Thread.remove({ _id: req.params.id, members: req.user._id }, (err, data) => {
-		if (err) {
-			res.send(err);
-			return;
-		}
-
-		if(!data) {
-			res.sendStatus(404);
-			return;
-		}
-		res.sendStatus(200);
-	});*/
 	Thread.update(
 		{ _id: req.params.id, members: req.user._id },
 		{
