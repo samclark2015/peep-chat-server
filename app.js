@@ -1,4 +1,5 @@
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({path: path.resolve(process.cwd(), '.env.development')});
 require('module').Module._initPaths();
 const express = require('express');
 const app = express();
@@ -68,26 +69,30 @@ app.use('/api/secure', secure);
 app.post('/api/login', (req, res) => {
 	//TODO auth & send jwt
 	let {username, password} = req.body;
-	User.findOne({username: username}, 'username password', (err, data) => {
-		if( !data ){
-			res.status(401).json({message:'no such user found'});
-			return;
-		}
+	User.findOne({username: username}, 'username password')
+		.then((data) => {
+			if( !data ){
+				res.status(401).json({message:'no such user found'});
+				return;
+			}
 
-		passwordHash(password).verifyAgainst(data.password, function(error, verified) {
-			if(error) {
-				res.sendStatus(500).send(error);
-				throw error;
-			}
-			if(!verified) {
-				res.sendStatus(401);
-			} else {
-				const payload = {_id: data._id};
-				const token = jwt.sign(payload, jwtOptions.secretOrKey);
-				res.json({message: 'ok', token: token});
-			}
+			passwordHash(password).verifyAgainst(data.password, function(error, verified) {
+				if(error) {
+					res.sendStatus(500).send(error);
+					throw error;
+				}
+				if(!verified) {
+					res.sendStatus(401);
+				} else {
+					const payload = {_id: data._id};
+					const token = jwt.sign(payload, jwtOptions.secretOrKey);
+					res.json({message: 'ok', token: token});
+				}
+			});
+		})
+		.catch((err)=> {
+			res.send(err);
 		});
-	});
 });
 
 

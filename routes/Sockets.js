@@ -78,7 +78,7 @@ router.ws('/', (ws, req) => {
 						$push: {
 							messages: {
 								$each: [message],
-								$sort: { timestamp: -1 }
+								$sort: { timestamp: 1 }
 							}
 						}
 					})
