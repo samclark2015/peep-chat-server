@@ -3,19 +3,12 @@ require('dotenv').config({path: path.resolve(process.cwd(), '.env.development')}
 require('module').Module._initPaths();
 
 const _ = require('lodash');
-const fs = require('fs');
-var http = require('http');
-var https = require('https');
 
 const express = require('express');
 const app = express();
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 require('express-ws')(app); //express-ws
-var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
-
-var credentials = {key: privateKey, cert: certificate};
 
 const passport = require('passport');
 const passportJWT = require('passport-jwt');
