@@ -76,10 +76,7 @@ router.ws('/', (ws, req) => {
 					let message = new Message(data);
 					Thread.update({_id: thread._id}, {
 						$push: {
-							messages: {
-								$each: [message],
-								$sort: { timestamp: 1 }
-							}
+							messages: message
 						}
 					})
 						.then(() => {
