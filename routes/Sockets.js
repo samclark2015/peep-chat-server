@@ -4,18 +4,18 @@ var router = express.Router();
 var jwt = require('jsonwebtoken');
 
 // Models
-const User = require('models/User');
-const Thread = require('models/Thread');
-const Message = require('models/Message');
+const User = require('../models/User');
+const Thread = require('../models/Thread');
+const Message = require('../models/Message');
 
 // Components
-const SharedData = require('components/SharedData');
-const Notify = require('components/Notify');
+const SharedData = require('../components/SharedData');
+const Notify = require('../components/Notify');
 //const WebPush = require('../components/WebPush')
 
 // Classes
-const WSMessage = require('classes/WSMessage');
-const WSError = require('classes/WSError');
+const WSMessage = require('../classes/WSMessage');
+const WSError = require('../classes/WSError');
 
 router.ws('/', (ws, req) => {
 	var user = null;

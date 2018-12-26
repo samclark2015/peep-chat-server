@@ -1,4 +1,4 @@
-var mongoose = require('components/SharedData').mongoose;
+var mongoose = require('../components/SharedData').mongoose;
 const Schema = mongoose.Schema;
 
 const schema = new Schema({

@@ -1,6 +1,6 @@
 const _ = require('lodash');
-const WebSocket = require('components/WebSocket');
-const WebPush = require('components/WebPush');
+const WebSocket = require('../components/WebSocket');
+const WebPush = require('../components/WebPush');
 
 let notifyUsers = (users, message, protocols) => {
 	let protocolsOrDefault = protocols || ['websocket', 'webpush'];

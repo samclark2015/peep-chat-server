@@ -1,4 +1,4 @@
-const SharedData = require('components/SharedData');
+const SharedData = require('../components/SharedData');
 
 let sendNotification = (userId, message) => {
 	if(SharedData.activeUsers[userId]) {

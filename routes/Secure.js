@@ -1,11 +1,11 @@
 var _ = require('lodash');
 var express = require('express');
 var router = express.Router();
-const User = require('models/User');
-const Thread = require('models/Thread');
-const Subscription = require('models/Subscription');
+const User = require('../models/User');
+const Thread = require('../models/Thread');
+const Subscription = require('../models/Subscription');
 
-let SharedData = require('components/SharedData');
+let SharedData = require('../components/SharedData');
 var activeUsers = SharedData.activeUsers;
 
 router.use(SharedData.passport.authenticate('jwt', { session: false }));

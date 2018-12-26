@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const webpush = require('web-push');
-const SharedData = require('components/SharedData');
-const Subscription = require('models/Subscription');
+const SharedData = require('../components/SharedData');
+const Subscription = require('../models/Subscription');
 
 let vapidKeys = {
 	publicKey:
